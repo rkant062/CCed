@@ -1,0 +1,49 @@
+tutorial=# SELECT * FROM timescaledb_information.continuous_aggregate_stats;
+ view_name |    completed_threshold    |  invalidation_threshold   | job_id |       last_run_started_at        |      last_successful_finish      | last_run_status | job_status | last_run_duration |        next_scheduled_run        | total_runs | total_successes | total_failures | total_crashes 
+-----------+---------------------------+---------------------------+--------+----------------------------------+----------------------------------+-----------------+------------+-------------------+----------------------------------+------------+-----------------+----------------+---------------
+ test30sec | 2020-04-17 01:13:30+05:30 | 2020-04-17 01:13:30+05:30 |   1001 | 2020-04-17 01:14:51.061825+05:30 | 2020-04-17 01:14:51.077673+05:30 | Success         | scheduled  | 00:00:00.015848   | 2020-04-17 01:15:51.077673+05:30 |         33 |              33 |              0 |             0
+ test5min  | 2020-04-17 01:13:30+05:30 | 2020-04-17 01:13:30+05:30 |   1000 | 2020-04-17 01:14:51.059977+05:30 | 2020-04-17 01:14:51.077202+05:30 | Success         | scheduled  | 00:00:00.017225   | 2020-04-17 01:15:51.077202+05:30 |         60 |              60 |              0 |             0
+(2 rows)
+
+
+
+tutorial=# SELECT * FROM test5min ORDER BY time;
+           time            | host  |     value_avg     
+---------------------------+-------+-------------------
+ 2020-04-17 00:49:30+05:30 | iDRAC | 0.488362354020063
+ 2020-04-17 00:50:00+05:30 | iDRAC |  0.45392349401557
+ 2020-04-17 00:50:30+05:30 | iDRAC | 0.503350024420512
+ 2020-04-17 00:51:00+05:30 | iDRAC | 0.503647533722475
+ 2020-04-17 00:51:30+05:30 | iDRAC | 0.505835976791883
+ 2020-04-17 00:52:00+05:30 | iDRAC | 0.493108128267943
+ 2020-04-17 00:52:30+05:30 | iDRAC | 0.494472383851436
+ 2020-04-17 00:53:00+05:30 | iDRAC | 0.506826478439684
+(8 rows)
+
+
+CREATE EXTENSION
+tutorial=# CREATE TABLE IF NOT EXISTS test_mytable (
+tutorial(# time TIMESTAMPTZ NOT NULL,
+tutorial(# host TEXT,
+tutorial(# cpu_val REAL
+tutorial(# );
+CREATE TABLE
+tutorial=# SELECT create_hypertable('test_mytable', 'time', if_not_exists => TRUE);
+     create_hypertable     
+---------------------------
+ (1,public,test_mytable,t)
+(1 row)
+
+tutorial=# CREATE VIEW test30sec
+WITH (timescaledb.continuous)
+AS SELECT 
+time_bucket('30s', time) as time,
+host,
+avg(cpu_val) as value_avg 
+FROM test_mytable. 
+GROUP BY 1, host;
+NOTICE:  adding index _materialized_hypertable_3_host_time_idx ON _timescaledb_internal._materialized_hypertable_3 USING BTREE(host, time)
+CREATE VIEW
+
+
+
