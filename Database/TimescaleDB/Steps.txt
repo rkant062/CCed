@@ -45,5 +45,28 @@ GROUP BY 1, host;
 NOTICE:  adding index _materialized_hypertable_3_host_time_idx ON _timescaledb_internal._materialized_hypertable_3 USING BTREE(host, time)
 CREATE VIEW
 
+========================================================================================================================================
 
+tutorial=# CREATE VIEW last7mins
+WITH (timescaledb.continuous)
+AS SELECT 
+time_bucket('30s', time) as time,
+host,
+cpu_val
+FROM test_mytable
+WHERE time >= now() - interval '7' minute;
+
+>> ERROR:  SELECT query for continuous aggregate should have at least 1 aggregate function and a GROUP BY clause with time_bucket
+
+     tutorial=# CREATE VIEW last7mins
+     WITH (timescaledb.continuous)
+     AS SELECT 
+     time_bucket('30s', time) as time,
+     host,
+     max(cpu_val) as max_cpu
+     FROM test_mytable
+     WHERE time >= now() - interval '7' minute
+     GROUP BY 1, host;
+
+///https://blog.timescale.com/blog/continuous-aggregates-faster-queries-with-automatically-maintained-materialized-views/
 
