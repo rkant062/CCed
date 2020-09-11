@@ -30,20 +30,22 @@ class Solution:
     # @return an integer
     def solve(self, A):
         median = RunningMedian()
-        for i in range(len(A)-1):
-            median.add_number(A[i+1])
-            if(median.get_median()==A[i+1]):
-                print(median.get_median(), A[i+1])
+        for i in range(len(A)):
+            median.add_number(A[i]) # 2 7
+            print("{} {}".format(A[i], median.get_median()))
+            if(median.get_median()==A[i] and i!=0):
+                print(median.get_median(), A[i])
                 return 1
-        for i in range(A, -1, -1):
-            median.add_number(i)
-            if(median.get_median()==i):
-                print(median.get_median(), i)
+        median2 = RunningMedian()
+        for i in range(len(A))[::-1]:
+            median2.add_number(A[i])
+            print("{} {}".format(A[i], median2.get_median()))
+            if(median2.get_median()==A[i] and i!=len(A)-1):
+                print(median2.get_median(), A[i])
                 return 1
         return 0
 
 
 solution = Solution()
-A = [1,2,3,4,5,6]
+A = [2,7,3,1]
 print(solution.solve(A))
-        
